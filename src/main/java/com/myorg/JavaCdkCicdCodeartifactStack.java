@@ -62,8 +62,8 @@ public class JavaCdkCicdCodeartifactStack extends Stack {
         mvnMirrorCodeartifactRepository.addDependsOn(codeartifactDomain);
         mvnPrivateCodeartifactRepository.addDependsOn(mvnMirrorCodeartifactRepository);
 
-        final Bucket pipelineArtifactBucket = Bucket.Builder.create(this, "PipelineArtifactBucket")
-                .bucketName("sample-java-cdk-artifact-" + this.getAccount())
+        final Bucket accessLogsBucket = Bucket.Builder.create(this, "AccessLogsBucket")
+                .bucketName("sample-java-cdk-access-logs-" + this.getAccount())
                 .blockPublicAccess(BlockPublicAccess.BLOCK_ALL)
                 .encryption(BucketEncryption.S3_MANAGED)
                 .removalPolicy(RemovalPolicy.DESTROY)
@@ -71,7 +71,17 @@ public class JavaCdkCicdCodeartifactStack extends Stack {
                 .autoDeleteObjects(true)
                 .build();
 
-        NagSuppressions.addResourceSuppressions(pipelineArtifactBucket, Arrays.asList(
+        final Bucket pipelineArtifactBucket = Bucket.Builder.create(this, "PipelineArtifactBucket")
+                .bucketName("sample-java-cdk-artifact-" + this.getAccount())
+                .serverAccessLogsBucket(accessLogsBucket)
+                .blockPublicAccess(BlockPublicAccess.BLOCK_ALL)
+                .encryption(BucketEncryption.S3_MANAGED)
+                .removalPolicy(RemovalPolicy.DESTROY)
+                .enforceSsl(true)
+                .autoDeleteObjects(true)
+                .build();
+
+        NagSuppressions.addResourceSuppressions(accessLogsBucket, Arrays.asList(
                 new NagPackSuppression.Builder()
                         .id("AwsSolutions-S1")
                         .reason("Cannot log to itself")
