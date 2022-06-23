@@ -16,7 +16,7 @@ package com.myorg;
      @Test
      public void testStack() throws IOException {
          App app = new App();
-         JavaCdkCicdCodeartifactStack stack = new JavaCdkCicdCodeartifactStack(app, "test");
+         JavaCdkCicdCodeartifactStack stack = new JavaCdkCicdCodeartifactStack(app, "JavaCdkCicdCodeartifactStack");
 
          Template template = Template.fromStack(stack);
 
