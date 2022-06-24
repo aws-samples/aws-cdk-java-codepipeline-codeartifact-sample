@@ -47,20 +47,13 @@ public class JavaCdkCicdCodeartifactStack extends Stack {
                 .domainName("aws-java-sample-domain")
                 .build();
 
-        final CfnRepository mvnMirrorCodeartifactRepository = CfnRepository.Builder.create(this, "MvnMirrorCodeArtifactRepository")
-                .domainName(codeartifactDomain.getDomainName())
-                .repositoryName("mvn-mirror")
-                .externalConnections(Arrays.asList("public:maven-central"))
-                .build();
-
         final CfnRepository mvnPrivateCodeartifactRepository = CfnRepository.Builder.create(this, "MvnPrivateCodeArtifactRepository")
                 .domainName(codeartifactDomain.getDomainName())
                 .repositoryName("mvn")
-                .upstreams(Arrays.asList(mvnMirrorCodeartifactRepository.getRepositoryName()))
+                .externalConnections(Arrays.asList("public:maven-central"))
                 .build();
 
-        mvnMirrorCodeartifactRepository.addDependsOn(codeartifactDomain);
-        mvnPrivateCodeartifactRepository.addDependsOn(mvnMirrorCodeartifactRepository);
+        mvnPrivateCodeartifactRepository.addDependsOn(codeartifactDomain);
 
         final Bucket accessLogsBucket = Bucket.Builder.create(this, "AccessLogsBucket")
                 .bucketName("sample-java-cdk-access-logs-" + this.getAccount())
