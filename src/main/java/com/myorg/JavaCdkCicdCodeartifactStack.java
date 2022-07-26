@@ -22,6 +22,7 @@ import software.amazon.awscdk.services.codecommit.Repository;
 import software.amazon.awscdk.services.codeartifact.CfnDomain;
 import software.amazon.awscdk.services.codeartifact.CfnRepository;
 import software.amazon.awscdk.services.s3.Bucket;
+import software.amazon.awscdk.services.kms.Key;
 import software.amazon.awscdk.services.codepipeline.Pipeline;
 import software.amazon.awscdk.services.codepipeline.Artifact;
 
@@ -55,10 +56,15 @@ public class JavaCdkCicdCodeartifactStack extends Stack {
 
         mvnPrivateCodeartifactRepository.addDependsOn(codeartifactDomain);
 
+        final Key codebuildEncryptionKey = Key.Builder.create(this, "codebuildEncryptionKey")
+                .enableKeyRotation(true)
+                .build();
+
         final Bucket accessLogsBucket = Bucket.Builder.create(this, "AccessLogsBucket")
                 .bucketName("sample-java-cdk-access-logs-" + this.getAccount())
                 .blockPublicAccess(BlockPublicAccess.BLOCK_ALL)
-                .encryption(BucketEncryption.S3_MANAGED)
+                .encryption(BucketEncryption.KMS)
+                .encryptionKey(codebuildEncryptionKey)
                 .removalPolicy(RemovalPolicy.DESTROY)
                 .enforceSsl(true)
                 .autoDeleteObjects(true)
@@ -68,7 +74,8 @@ public class JavaCdkCicdCodeartifactStack extends Stack {
                 .bucketName("sample-java-cdk-artifact-" + this.getAccount())
                 .serverAccessLogsBucket(accessLogsBucket)
                 .blockPublicAccess(BlockPublicAccess.BLOCK_ALL)
-                .encryption(BucketEncryption.S3_MANAGED)
+                .encryption(BucketEncryption.KMS)
+                .encryptionKey(codebuildEncryptionKey)
                 .removalPolicy(RemovalPolicy.DESTROY)
                 .enforceSsl(true)
                 .autoDeleteObjects(true)
@@ -284,6 +291,8 @@ public class JavaCdkCicdCodeartifactStack extends Stack {
                                 "Action::s3:GetBucket*",
                                 "Action::s3:GetObject*",
                                 "Action::s3:List*",
+                                "Action::kms:GenerateDataKey*",
+                                "Action::kms:ReEncrypt*",
                                 "Resource::<PipelineArtifactBucketD127CCF6.Arn>/*"
                         ))
                         .build()
@@ -301,6 +310,8 @@ public class JavaCdkCicdCodeartifactStack extends Stack {
                                         "Action::s3:GetBucket*",
                                         "Action::s3:GetObject*",
                                         "Action::s3:List*",
+                                        "Action::kms:GenerateDataKey*",
+                                        "Action::kms:ReEncrypt*",
                                         "Resource::<PipelineArtifactBucketD127CCF6.Arn>/*"
                                 ))
                                 .build()
@@ -318,17 +329,10 @@ public class JavaCdkCicdCodeartifactStack extends Stack {
                                         "Action::s3:GetBucket*",
                                         "Action::s3:GetObject*",
                                         "Action::s3:List*",
+                                        "Action::kms:GenerateDataKey*",
+                                        "Action::kms:ReEncrypt*",
                                         "Resource::<PipelineArtifactBucketD127CCF6.Arn>/*"
                                 ))
-                                .build()
-                ));
-
-        NagSuppressions.addResourceSuppressionsByPath(this,
-                "/JavaCdkCicdCodeartifactStack/RunUnitTests/Resource",
-                Arrays.asList(
-                        new NagPackSuppression.Builder()
-                                .id("AwsSolutions-CB4")
-                                .reason("False-positive. Encryption key is applied")
                                 .build()
                 ));
 
@@ -357,17 +361,10 @@ public class JavaCdkCicdCodeartifactStack extends Stack {
                                         "Action::s3:GetBucket*",
                                         "Action::s3:GetObject*",
                                         "Action::s3:List*",
+                                        "Action::kms:GenerateDataKey*",
+                                        "Action::kms:ReEncrypt*",
                                         "Resource::<PipelineArtifactBucketD127CCF6.Arn>/*"
                                 ))
-                                .build()
-                ));
-
-        NagSuppressions.addResourceSuppressionsByPath(this,
-                "/JavaCdkCicdCodeartifactStack/SelfMutate/Resource",
-                Arrays.asList(
-                        new NagPackSuppression.Builder()
-                                .id("AwsSolutions-CB4")
-                                .reason("False-positive. Encryption key is applied")
                                 .build()
                 ));
 
@@ -397,17 +394,10 @@ public class JavaCdkCicdCodeartifactStack extends Stack {
                                         "Action::s3:GetBucket*",
                                         "Action::s3:GetObject*",
                                         "Action::s3:List*",
+                                        "Action::kms:GenerateDataKey*",
+                                        "Action::kms:ReEncrypt*",
                                         "Resource::<PipelineArtifactBucketD127CCF6.Arn>/*"
                                 ))
-                                .build()
-                ));
-
-        NagSuppressions.addResourceSuppressionsByPath(this,
-                "/JavaCdkCicdCodeartifactStack/BuildSamplePackage/sample-package/Resource",
-                Arrays.asList(
-                        new NagPackSuppression.Builder()
-                                .id("AwsSolutions-CB4")
-                                .reason("False-positive. Encryption key is applied")
                                 .build()
                 ));
 
