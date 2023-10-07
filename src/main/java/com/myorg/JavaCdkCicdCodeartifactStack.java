@@ -7,6 +7,7 @@ import com.myorg.buildAndPublishPackage.buildAndPublishPackage;
 import software.amazon.awscdk.RemovalPolicy;
 import software.amazon.awscdk.services.codebuild.*;
 import software.amazon.awscdk.services.codepipeline.StageOptions;
+import software.amazon.awscdk.services.codepipeline.actions.CodeStarConnectionsSourceAction;
 import software.amazon.awscdk.services.codepipeline.actions.CodeBuildAction;
 import software.amazon.awscdk.services.codepipeline.actions.CodeBuildActionProps;
 import software.amazon.awscdk.services.codepipeline.actions.CodeCommitSourceAction;
@@ -39,10 +40,12 @@ public class JavaCdkCicdCodeartifactStack extends Stack {
 
     public JavaCdkCicdCodeartifactStack(final Construct scope, final String id, final StackProps props) {
         super(scope, id, props);
-
+        
+        /*
         final Repository repo = Repository.Builder.create(this, "CodeCommitRepository")
                 .repositoryName("JavaSampleRepository")
                 .build();
+        */
 
         final CfnDomain codeartifactDomain = CfnDomain.Builder.create(this, "CodeArtifactDomain")
                 .domainName("aws-java-sample-domain")
@@ -95,12 +98,22 @@ public class JavaCdkCicdCodeartifactStack extends Stack {
                 .build();
 
         final Artifact sourceOutput = new Artifact("SourceArtifact");
-
+        
+        /*
         final CodeCommitSourceAction sourceAction = CodeCommitSourceAction.Builder.create()
                 .actionName("CodeCommit")
                 .repository(repo)
                 .output(sourceOutput)
                 .branch("main")
+                .build();
+        */
+
+        final CodeStarConnectionsSourceAction sourceAction = CodeStarConnectionsSourceAction.Builder.create()
+                .actionName("Github_Source")
+                .owner("hk1313")
+                .repo("aws-cdk-java-codepipeline-codeartifact-sample")
+                .output(sourceOutput)
+                .connectionArn("arn:aws:codestar-connections:eu-central-1:697440750444:connection/cbc7047e-b102-4b86-80fd-8952fb7a73cc")
                 .build();
 
         pipeline.addStage(StageOptions.builder()
